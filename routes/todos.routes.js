@@ -5,7 +5,7 @@ const { Todo, validate } = require("../models/todo.model");
 // GET -- Get all todos
 router.get("/", async (req, res) => {
   try {
-    const { rows: todos } = await pool.query("SELECT * FROM todo");
+    const { rows: todos } = await pool.query("SELECT * FROM todos");
     // If no todo
     if (!todos) return res.status(404).send("Todos not found");
 
@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
 
     // Save in database
     await pool.query(
-      "INSERT INTO todo (description, creationDate) VALUES($1, $2)",
+      "INSERT INTO todos (description, creationDate) VALUES($1, $2)",
       [newTodo.description, newTodo.creationDate]
     );
 
@@ -49,14 +49,14 @@ router.put("/:id", async (req, res) => {
 
     // Check if todo exist
     const { rows } = await pool.query(
-      `SELECT * FROM todo WHERE todo_id = ${id}`
+      `SELECT * FROM todos WHERE todo_id = ${id}`
     );
     const todo = rows[0];
     if (!todo) res.status(404).send("Todo not found");
 
     // Update todo
     const updatedTodo = { ...todo, description };
-    await pool.query("UPDATE todo SET description = $1 WHERE todo_id = $2", [
+    await pool.query("UPDATE todos SET description = $1 WHERE todo_id = $2", [
       updatedTodo.description,
       id
     ]);
@@ -72,12 +72,14 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   // Check if todo exist
-  const { rows } = await pool.query(`SELECT * FROM todo WHERE todo_id = ${id}`);
+  const { rows } = await pool.query(
+    `SELECT * FROM todos WHERE todo_id = ${id}`
+  );
   const todo = rows[0];
   if (!todo) res.status(404).send("Todo no found");
 
   // Delete it
-  await pool.query(`DELETE FROM todo WHERE todo_id = ${id}`);
+  await pool.query(`DELETE FROM todos WHERE todo_id = ${id}`);
 
   res.send(todo);
 });
